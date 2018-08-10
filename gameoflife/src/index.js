@@ -47,6 +47,10 @@ class Grid extends React.Component {
   }
 }
 
+class Button extends React.Component {
+  
+}
+
 class Main extends React.Component {
   constructor(){
     super();
@@ -69,8 +73,8 @@ class Main extends React.Component {
 
  seed = () => {
    let gridCopy = arrayClone(this.state.gridFull);
-   for(var i = 0 ; i < this.props.rows ; i++){
-     for(var j = 0; j < this.props.cols ; j++){
+   for(var i = 0 ; i < this.rows ; i++){
+     for(var j = 0; j < this.cols ; j++){
        if(Math.floor(Math.random() * 4) === 1) {
          gridCopy[i][j] = true;
        }
@@ -81,14 +85,56 @@ class Main extends React.Component {
    });
  }
 
+playButton = () => {
+  clearInterval(this.intervalID);
+  this.intervalId = setInterval(this.play, this.speed);
+}
+
+pauseButton = () =>{
+  clearInterval(this.intervalID);
+}
+play = () => {
+  let g = this.state.gridFull;
+  let g2 = arrayClone(this.state.gridFull);
+  for (let i = 0; i < this.rows; i++) {
+		  for (let j = 0; j < this.cols; j++) {
+		    let count = 0;
+		    if (i > 0) if (g[i - 1][j]) count++;
+		    if (i > 0 && j > 0) if (g[i - 1][j - 1]) count++;
+		    if (i > 0 && j < this.cols - 1) if (g[i - 1][j + 1]) count++;
+		    if (j < this.cols - 1) if (g[i][j + 1]) count++;
+		    if (j > 0) if (g[i][j - 1]) count++;
+		    if (i < this.rows - 1) if (g[i + 1][j]) count++;
+		    if (i < this.rows - 1 && j > 0) if (g[i + 1][j - 1]) count++;
+		    if (i < this.rows - 1 && j < this.cols - 1) if (g[i + 1][j + 1]) count++;
+		    if (g[i][j] && (count < 2 || count > 3)) g2[i][j] = false;
+		    if (!g[i][j] && count === 3) g2[i][j] = true;
+		  }
+		}
+		this.setState({
+		  gridFull: g2,
+		  generation: this.state.generation + 1
+		});
+}
+
  componentDidMount() {
    this.seed();
+   this.playButton();
  }
 
   render() {
     return(
       <div>
       <h1>The Game of Life</h1>
+      <Button
+      playButton = {this.playButton};
+      pauseButton = {this.pauseButton};
+      slow = {this.slow};
+      fast = {this.fast};
+      clear = {this.clear};
+      seed = {this.seed};
+      gridSize = {this.gridSize};
+      />
       <Grid
        gridFull = {this.state.gridFull}
        rows = {this.rows}
